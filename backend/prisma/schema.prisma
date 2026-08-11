@@ -1,0 +1,147 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String          @id @default(uuid())
+  name         String
+  email        String          @unique
+  passwordHash String
+  role         String          @default("SALES") // ADMIN, SALES, WAREHOUSE, ACCOUNTS
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  customerNotes CustomerNote[]
+  stockMovements StockMovement[]
+  challans      Challan[]
+
+  requestedApprovals ApprovalRequest[] @relation("RequestedApprovals")
+  approvedApprovals  ApprovalRequest[] @relation("ApprovedApprovals")
+
+  @@map("users")
+}
+
+model Customer {
+  id           String         @id @default(uuid())
+  name         String
+  mobile       String
+  email        String?
+  businessName String
+  gstNumber    String?
+  customerType String         @default("LEAD") // LEAD, RETAIL, WHOLESALE, DISTRIBUTOR
+  address      String?
+  status       String         @default("LEAD") // LEAD, ACTIVE, INACTIVE, CONVERTED
+  followUpDate DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  notes        CustomerNote[]
+  challans     Challan[]
+
+  @@map("customers")
+}
+
+model CustomerNote {
+  id         String   @id @default(uuid())
+  customerId String
+  note       String
+  createdBy  String
+  createdAt  DateTime @default(now())
+
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [createdBy], references: [id])
+
+  @@map("customer_notes")
+}
+
+model Product {
+  id                String          @id @default(uuid())
+  name              String
+  sku               String          @unique
+  category          String
+  unitPrice         Float
+  currentStock      Int             @default(0)
+  minStock          Int             @default(0)
+  warehouseLocation String
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  stockMovements    StockMovement[]
+  challanItems      ChallanItem[]
+
+  @@map("products")
+}
+
+model StockMovement {
+  id           String       @id @default(uuid())
+  productId    String
+  quantity     Int
+  movementType String       // IN, OUT
+  reason       String
+  createdBy    String
+  createdAt    DateTime     @default(now())
+
+  product      Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [createdBy], references: [id])
+
+  @@map("stock_movements")
+}
+
+model Challan {
+  id            String        @id @default(uuid())
+  challanNumber String        @unique
+  customerId    String
+  status        String        @default("DRAFT") // DRAFT, CONFIRMED, CANCELLED
+  totalQuantity Int           @default(0)
+  totalAmount   Float         @default(0.0)
+  createdBy     String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  customer      Customer      @relation(fields: [customerId], references: [id])
+  user          User          @relation(fields: [createdBy], references: [id])
+  items         ChallanItem[]
+
+  @@map("challans")
+}
+
+model ChallanItem {
+  id          String   @id @default(uuid())
+  challanId   String
+  productId   String
+  productName String
+  sku         String
+  quantity    Int
+  unitPrice   Float
+  lineTotal   Float
+
+  challan     Challan  @relation(fields: [challanId], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [productId], references: [id])
+
+  @@map("challan_items")
+}
+
+model ApprovalRequest {
+  id              String   @id @default(uuid())
+  requestType     String   // HIGH_VALUE_CHALLAN, STOCK_ADJUSTMENT, CUSTOMER_STATUS
+  entityId        String   // ID of Challan / Product / Customer
+  title           String
+  description     String
+  amount          Float?
+  status          String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  requestedBy     String
+  approvedBy      String?
+  rejectionReason String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation("RequestedApprovals", fields: [requestedBy], references: [id])
+  approver        User?    @relation("ApprovedApprovals", fields: [approvedBy], references: [id])
+
+  @@map("approval_requests")
+}
