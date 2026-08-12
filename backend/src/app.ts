@@ -17,7 +17,11 @@ const app: Application = express();
 
 app.use(
   cors({
-    origin: ENV.CORS_ORIGIN,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, or same-origin Nginx proxy)
+      if (!origin) return callback(null, true);
+      return callback(null, true);
+    },
     credentials: true,
   })
 );
