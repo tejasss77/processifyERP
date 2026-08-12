@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install dependencies
+# Install all dependencies
 RUN npm ci
 
 # Copy source code
@@ -22,9 +22,9 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Copy package files and install production dependencies only
+# Copy package files and install dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy compiled code and Prisma assets from builder stage
 COPY --from=builder /app/dist ./dist
@@ -39,5 +39,5 @@ ENV DATABASE_URL="file:./prisma/dev.db"
 
 EXPOSE 5001
 
-# Run Prisma migrations / push and seed default admin accounts, then start server
-CMD ["sh", "-c", "npx prisma db push && node dist/seed.js && node dist/server.js"]
+# Run Prisma db push in non-interactive mode, seed default admin accounts, then start server
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && node dist/seed.js && node dist/server.js"]
