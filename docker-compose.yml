@@ -14,6 +14,8 @@ services:
       - CORS_ORIGIN=*
     volumes:
       - sqlite_data:/app/prisma
+    networks:
+      - app_net
 
   frontend:
     build:
@@ -25,6 +27,12 @@ services:
       - "80:80"
     depends_on:
       - backend
+    networks:
+      - app_net
+
+networks:
+  app_net:
+    driver: bridge
 
 volumes:
   sqlite_data:
