@@ -39,5 +39,5 @@ ENV DATABASE_URL="file:./prisma/dev.db"
 
 EXPOSE 5001
 
-# Run Prisma migrations / push and seed if needed, then start server
-CMD ["sh", "-c", "npx prisma db push && node dist/server.js"]
+# Run Prisma migrations / push and seed default admin accounts, then start server
+CMD ["sh", "-c", "npx prisma db push && node dist/seed.js && node dist/server.js"]
