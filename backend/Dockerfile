@@ -2,6 +2,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Install OpenSSL required by Prisma in Alpine
+RUN apk add --no-cache openssl
+
 # Copy package files
 COPY package*.json ./
 COPY prisma ./prisma/
@@ -21,6 +24,9 @@ RUN npm run build
 FROM node:20-alpine AS runner
 
 WORKDIR /app
+
+# Install OpenSSL required by Prisma query engine in Alpine Linux
+RUN apk add --no-cache openssl
 
 # Copy package files and install dependencies
 COPY package*.json ./
