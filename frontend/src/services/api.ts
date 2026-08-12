@@ -28,7 +28,19 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     headers,
   });
 
-  const data = await response.json();
+  const contentType = response.headers.get('content-type') || '';
+  let data: any = {};
+
+  if (contentType.includes('application/json')) {
+    try {
+      data = await response.json();
+    } catch {
+      data = {};
+    }
+  } else {
+    const text = await response.text();
+    data = { message: text ? `Server error (${response.status})` : `API error (${response.status})` };
+  }
 
   if (!response.ok) {
     const error: any = new Error(data.message || 'An API error occurred');

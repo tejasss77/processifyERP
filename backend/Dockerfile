@@ -46,4 +46,4 @@ ENV DATABASE_URL="file:./prisma/dev.db"
 EXPOSE 5001
 
 # Run Prisma db push in non-interactive mode, seed default admin accounts, then start server
-CMD ["sh", "-c", "npx prisma db push --accept-data-loss && node dist/seed.js && node dist/server.js"]
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && (node dist/seed.js || true) && node dist/server.js"]
