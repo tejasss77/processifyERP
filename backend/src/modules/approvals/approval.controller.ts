@@ -97,7 +97,7 @@ export const approveRequest = async (req: Request, res: Response, next: NextFunc
               quantity: item.quantity,
               movementType: 'OUT',
               reason: `Sales Challan #${challan.challanNumber} (Admin Approved)`,
-              createdBy: adminUser.userId,
+              createdBy: adminUser.id,
             },
           });
         }
@@ -111,7 +111,7 @@ export const approveRequest = async (req: Request, res: Response, next: NextFunc
           where: { id: approval.id },
           data: {
             status: 'APPROVED',
-            approvedBy: adminUser.userId,
+            approvedBy: adminUser.id,
           },
         });
       });
@@ -121,7 +121,7 @@ export const approveRequest = async (req: Request, res: Response, next: NextFunc
         where: { id: approval.id },
         data: {
           status: 'APPROVED',
-          approvedBy: adminUser.userId,
+          approvedBy: adminUser.id,
         },
       });
     }
@@ -164,7 +164,7 @@ export const rejectRequest = async (req: Request, res: Response, next: NextFunct
           where: { id: approval.id },
           data: {
             status: 'REJECTED',
-            approvedBy: adminUser.userId,
+            approvedBy: adminUser.id,
             rejectionReason: rejectionReason || 'Rejected by Administrator',
           },
         }),
@@ -174,7 +174,7 @@ export const rejectRequest = async (req: Request, res: Response, next: NextFunct
         where: { id: approval.id },
         data: {
           status: 'REJECTED',
-          approvedBy: adminUser.userId,
+          approvedBy: adminUser.id,
           rejectionReason: rejectionReason || 'Rejected by Administrator',
         },
       });

@@ -1,0 +1,10 @@
+node_modules
+dist
+build
+.git
+.gitignore
+.env
+*.log
+.DS_Store
+ProcessifyERP - Operations Portal.pdf
+invoice.pdf
